@@ -1,5 +1,0 @@
-- For better performance make browser cache images before showing slide[DONE];
-- Address screen responsivity;
-- Make play/stop button;
-- Make next/previous buttons[DONE];
-- Source control and pull requests;

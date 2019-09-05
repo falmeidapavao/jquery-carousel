@@ -13,8 +13,8 @@
         "name": "Frederico Pavao",
         "email": "falmeidapavao@gmail.com"
     },
-    "main": "js/carousel.js",
-    "style": "css/styles.css",
+    "main": "src/js/carousel.js",
+    "style": "src/styles/styles.css",
     "repository": {
         "type": "git",
         "url": "https://github.com/falmeidapavao/jquery-carousel.git"

@@ -1,19 +1,25 @@
 'use strict';
 $.fn.carroussel = function (options) {
+
   /**
    * Instance(plugin model).
    */
   var instance = {
+    // DOM fields.
     id: this.attr('id'),
     root: this,
     template: null,
+    // Default plugin options.
     options: {
       items: [{ 'src': '' }],
       coverIndex: 0
     },
+    // Internal options.
     interval: null,
-    animationIn: function () { },
-    animationOut: function () { }
+    animations: {
+      in: null,
+      out: null
+    }
   };
 
   /**
@@ -25,6 +31,7 @@ $.fn.carroussel = function (options) {
   };
 
   var bootstrapOptions = function () {
+    // Replace input options in default options.
     instance.options = $.extend(instance.options, options);
 
     // Mode.
@@ -33,29 +40,39 @@ $.fn.carroussel = function (options) {
     }
 
     // Next/previous animations.
-    let animation = { 'in': null, 'out': null };
+    let currentAnimation = null;
     switch (instance.options.animation) {
       case 'slide':
-        animation['in'] = 'slideDown';
-        animation['out'] = 'slideUp';
+        currentAnimation = { in: 'slideDown', out: 'slideUp' };
         break;
       case 'fade':
-        animation['in'] = 'fadeIn';
-        animation['out'] = 'fadeOut';
-        break;
       default:
+        currentAnimation = { in: 'fadeIn', out: 'fadeOut' };
         break;
     }
 
-    instance.animationIn = function () {
-      this[animation['in']]();
+    // Set instance animation callbacks.
+    instance.animations.in = function () {
+      this[currentAnimation['in']]();
     };
-    instance.animationOut = function () {
-      return this[animation['out']]();
+    instance.animations.out = function () {
+      return this[currentAnimation['out']]();
     };
   };
+  
+  var render = function () {
+    let container = $('<div>', { 'class': 'c-container' });
+    let item = $('<div/>', { 'id': 'c-item', 'class': 'c-item' });
+    let img = $('<img/>', { 'id': 'c-img', 'class': 'c-img', 'src': options.items[instance.options.coverIndex].src });
+    let next = $('<div/>', { 'id': 'c-next', 'class': 'c-arrow c-next' });
+    let previous = $('<div/>', { 'id': 'c-previous', 'class': 'c-arrow c-previous' });
+    item.append(img)
+    instance.template = container.append(item, next, previous);;
+    setEvents();
+    instance.root.html(instance.template);
+  };
 
-  var events = function () {
+  var setEvents = function () {
     // Icons.
     instance.template.find('#c-next').on('click', function (e) {
       e.stopPropagation();
@@ -83,21 +100,6 @@ $.fn.carroussel = function (options) {
     });
   };
 
-  var render = function () {
-    let container = $('<div>', { 'class': 'c-container' });
-    let item = $('<div/>', { 'id': 'c-item', 'class': 'c-item' });
-    let img = $('<img/>', { 'id': 'c-img', 'class': 'c-img', 'src': options.items[instance.options.coverIndex].src });
-    let next = $('<div/>', { 'id': 'c-next', 'class': 'c-arrow c-next' });
-    let previous = $('<div/>', { 'id': 'c-previous', 'class': 'c-arrow c-previous' });
-    item.append(img)
-    container.append(item, next, previous);
-    instance.template = container;
-
-    events();
-
-    instance.root.html(instance.template);
-  };
-
   /**
    * Animations/Shifting.
    */
@@ -107,13 +109,13 @@ $.fn.carroussel = function (options) {
 
     // Wait for out animation to stop before working on DOM.
     // Also wait for next/previous image to be loaded.
-    $.when(instance.animationOut.call(img)).done(function () {
+    $.when(instance.animations.out.call(img)).done(function () {
       img.detach()
         .attr('src', options.items[instance.options.coverIndex].src)
         .css({ 'display': 'none' })
         .one('load', function () {
           item.append(img);
-          instance.animationIn.call(img);
+          instance.animations.in.call(img);
         });
     });
   };

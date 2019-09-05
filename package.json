@@ -1,0 +1,25 @@
+{
+    "name": "jquery-carousel",
+    "description": "An image carousel/slider for jQuery.",
+    "keywords": [
+        "slider",
+        "carousel",
+        "jquery-plugin"
+    ],
+    "dependencies": {
+        "jquery": ">=1.7"
+    },
+    "author": {
+        "name": "Frederico Pavao",
+        "email": "falmeidapavao@gmail.com"
+    },
+    "main": "js/carousel.js",
+    "style": "css/styles.css",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/falmeidapavao/jquery-carousel.git"
+    },
+    "bugs": {
+        "url": "https://github.com/falmeidapavao/jquery-carousel/issues"
+    }
+}

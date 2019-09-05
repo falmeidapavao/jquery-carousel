@@ -1,5 +1,5 @@
 'use strict';
-$.fn.carroussel = function (options) {
+$.fn.carousel = function (options) {
 
   /**
    * Instance(plugin model).

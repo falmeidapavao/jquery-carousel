@@ -75,8 +75,8 @@ $.fn.carousel = function(options) {
 		});
 		const previous = $('<div/>', {
 			id: 'c-previous',
-      class: 'c-arrow c-previous',
-      'data-op': 'previous'
+			class: 'c-arrow c-previous',
+			'data-op': 'previous'
 		});
 
 		item.append(img);
@@ -87,33 +87,38 @@ $.fn.carousel = function(options) {
 	};
 
 	const setEvents = () => {
-    const tmpl = instance.template;
-    
-    const operation = (op) => {
-      switch (op) {
-        case 'contextmenu': return previous;
-        case 'previous': return previous;
-        case 'click': return next;
-        case 'next': return next;
-        default: return () => {};
-      }
-    };
+		const tmpl = instance.template;
+
+		const operation = op => {
+			switch (op) {
+				case 'contextmenu':
+					return previous;
+				case 'previous':
+					return previous;
+				case 'click':
+					return next;
+				case 'next':
+					return next;
+				default:
+					return () => {};
+			}
+		};
 
 		// Icons.
-		tmpl.find('#c-next, #c-previous').on('click', function (e) {
-      e.preventDefault();
+		tmpl.find('#c-next, #c-previous').on('click', function(e) {
+			e.preventDefault();
 			e.stopPropagation();
 			stop();
-      // Must be function instead of lambda because of $(this)
+			// Must be function instead of lambda because of $(this)
 			operation($(this).data('op'))();
 		});
 
-    // Frame.
-    tmpl.on('click contextmenu', (e) => {
-      e.preventDefault();
-      stop();
-      operation(e.type)();
-    });
+		// Frame.
+		tmpl.on('click contextmenu', e => {
+			e.preventDefault();
+			stop();
+			operation(e.type)();
+		});
 	};
 
 	/**

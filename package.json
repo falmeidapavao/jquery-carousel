@@ -1,25 +1,53 @@
 {
-    "name": "jquery-carousel",
-    "description": "An image carousel/slider for jQuery.",
-    "keywords": [
-        "slider",
-        "carousel",
-        "jquery-plugin"
-    ],
-    "dependencies": {
-        "jquery": ">=1.7"
-    },
-    "author": {
-        "name": "Frederico Pavao",
-        "email": "falmeidapavao@gmail.com"
-    },
-    "main": "src/js/carousel.js",
-    "style": "src/styles/styles.css",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/falmeidapavao/jquery-carousel.git"
-    },
-    "bugs": {
-        "url": "https://github.com/falmeidapavao/jquery-carousel/issues"
+  "name": "jquery-carousel",
+  "description": "An image carousel/slider for jQuery.",
+  "keywords": [
+    "slider",
+    "carousel",
+    "jquery-plugin"
+  ],
+  "author": {
+    "name": "Frederico Pavao",
+    "email": "falmeidapavao@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Luis Furnas",
+      "email": "luisfurnas@gmail.com"
     }
+  ],
+  "main": "src/js/carousel.js",
+  "style": "src/styles/styles.css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/falmeidapavao/jquery-carousel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/falmeidapavao/jquery-carousel/issues"
+  },
+  "scripts": {
+    "build": "gulp",
+    "watch": "gulp watch"
+  },
+  "dependencies": {
+    "jquery": "^3.4.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "autoprefixer": "^9.6.1",
+    "browser-sync": "^2.26.7",
+    "cssnano": "^4.1.10",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2",
+    "node-sass": "^4.12.0"
+  }
 }

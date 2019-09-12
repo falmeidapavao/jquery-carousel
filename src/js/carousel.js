@@ -91,11 +91,9 @@ $.fn.carousel = function (options) {
 		const operation = op => {
 			switch (op) {
 				case 'contextmenu':
-					return previous;
 				case 'previous':
 					return previous;
 				case 'click':
-					return next;
 				case 'next':
 					return next;
 				default:

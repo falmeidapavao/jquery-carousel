@@ -1,0 +1,28 @@
+env:
+  browser: true
+  es6: true
+extends:
+  - google
+  - prettier
+plugins:
+  - prettier
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parserOptions:
+  ecmaVersion: 2018
+  sourceType: module
+rules:
+  prettier/prettier: [error]
+  curly: [error, all]
+  quotes:
+    - error
+    - single
+    - avoidEscape: true
+      allowTemplateLiterals: false
+  no-tabs:
+    - error
+    - allowIndentationTabs: true
+  no-confusing-arrow:
+    - error
+    - allowParens: false

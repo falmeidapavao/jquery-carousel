@@ -4,6 +4,7 @@ const babel = require('gulp-babel');
 const concat = require('gulp-concat');
 const cssnano = require('cssnano');
 const del = require('del');
+const eslint = require('gulp-eslint');
 const gulp = require('gulp');
 const plumber = require('gulp-plumber');
 const postcss = require('gulp-postcss');
@@ -59,17 +60,28 @@ const scripts = () =>
     .pipe(gulp.dest(paths.dist))
     .pipe(browsersync.stream());
 
+const lint = () =>
+  gulp
+    .src(`${paths.js}/**/*.js`)
+    .pipe(plumber())
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+
 const watchFiles = () => {
   gulp.watch(`${paths.css}/**/*.scss`, styles);
   gulp.watch(`${paths.js}/**/*.js`, scripts);
 };
 
-const build = gulp.series(clean, gulp.parallel(styles, scripts));
+const js = gulp.series(lint, scripts);
+const build = gulp.series(clean, gulp.parallel(styles, js));
 const watch = gulp.parallel(watchFiles, browserSync);
 
 exports.clean = clean;
 exports.styles = styles;
 exports.scripts = scripts;
+exports.lint = lint;
+exports.js = js;
 exports.build = build;
 exports.watch = watch;
 exports.default = build;

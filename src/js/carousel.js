@@ -1,72 +1,75 @@
 'use strict';
-
-$.fn.carousel = function(options) {
+(function ($) {
   /**
-   * Instance (plugin model).
+   * Private fields
    */
-  const instance = {
-    // DOM fields.
-    id: this.attr('id'),
-    root: this,
+  let instance = {
+    root: null,
     template: null,
-    // Default plugin options.
-    options: {
-      items: [{ src: '' }],
-      coverIndex: 0
-    },
-    // Internal options.
-    interval: null,
-    animations: {
-      in: null,
-      out: null
-    }
+    options: {}
+  };
+  let animations = {};
+  let interval = null;
+
+  /**
+   * Plugin
+   */
+  $.fn.carousel = function (options) {
+    instance.root = $(this);
+
+    // Extend defaults with provided options.
+    instance.options = $.extend($.fn.carousel.defaults, options);
+
+    return this.each(() => {
+      // Check for auto shift mode.
+      if (instance.options) {
+        play();
+      }
+
+      // Next/previous animations.
+      let currentAnimation = null;
+      switch (instance.options.animation) {
+        case 'slide':
+          currentAnimation = { in: 'slideDown', out: 'slideUp' };
+          break;
+        case 'fade':
+        default:
+          currentAnimation = { in: 'fadeIn', out: 'fadeOut' };
+          break;
+      }
+
+      // Set instance animation callbacks.
+      animations.in = elm => {
+        elm[currentAnimation['in']]();
+      };
+      animations.out = elm => {
+        return elm[currentAnimation['out']]();
+      };
+
+      // Render UI.
+      render();
+    });
   };
 
   /**
-   * Engine.
+   * Default options
    */
-  const run = () => {
-    bootstrapOptions();
-    render();
+  $.fn.carousel.defaults = {
+    items: [{ src: '' }],
+    coverIndex: 0,
+    auto: false
   };
 
-  const bootstrapOptions = () => {
-    // Replace input options in default options.
-    instance.options = $.extend(instance.options, options);
-
-    // Mode.
-    if (instance.options.mode === 'auto') {
-      play();
-    }
-
-    // Next/previous animations.
-    let currentAnimation = null;
-    switch (instance.options.animation) {
-      case 'slide':
-        currentAnimation = { in: 'slideDown', out: 'slideUp' };
-        break;
-      case 'fade':
-      default:
-        currentAnimation = { in: 'fadeIn', out: 'fadeOut' };
-        break;
-    }
-
-    // Set instance animation callbacks.
-    instance.animations.in = function(elm) {
-      elm[currentAnimation['in']]();
-    };
-    instance.animations.out = function(elm) {
-      return elm[currentAnimation['out']]();
-    };
-  };
-
+  /**
+   * Private functions
+   */
   const render = () => {
     const container = $('<div>', { class: 'c-container' });
     const item = $('<div/>', { id: 'c-item', class: 'c-item' });
     const img = $('<img/>', {
       id: 'c-img',
       class: 'c-img',
-      src: options.items[instance.options.coverIndex].src
+      src: instance.options.items[instance.options.coverIndex].src
     });
     const next = $('<div/>', {
       id: 'c-next',
@@ -92,12 +95,12 @@ $.fn.carousel = function(options) {
       switch (op) {
         case 'contextmenu':
         case 'previous':
-          return previous;
+          return $.fn.carousel.previous;
         case 'click':
         case 'next':
-          return next;
+          return $.fn.carousel.next;
         default:
-          return () => {};
+          return () => { };
       }
     };
 
@@ -117,9 +120,16 @@ $.fn.carousel = function(options) {
     });
   };
 
-  /**
-   * Animations/Shifting.
-   */
+  const play = () => {
+    interval = setInterval(() => {
+      $.fn.carousel.next();
+    }, 3000);
+  };
+
+  const stop = () => {
+    clearTimeout(interval);
+  };
+
   const shift = () => {
     const tmpl = instance.template;
     const item = tmpl.find('#c-item');
@@ -127,40 +137,35 @@ $.fn.carousel = function(options) {
 
     // Wait for out animation to stop before working on DOM.
     // Also wait for next/previous image to be loaded.
-    $.when(instance.animations.out(img)).done(() => {
+    $.when(animations.out(img)).done(function () {
       img
         .detach()
         .attr('src', options.items[instance.options.coverIndex].src)
         .css({ display: 'none' })
-        .one('load', function() {
+        .one('load', () => {
           item.append(img);
-          instance.animations.in(img);
+          animations.in(img);
         });
+      $.fn.carousel.cover = instance.options.coverIndex;
     });
   };
 
-  const next = () => {
+  /**
+   * Exposed methods/properties
+   */
+  $.fn.carousel.next = () => {
     const opts = instance.options;
     const len = (opts.items || []).length;
     instance.options.coverIndex = (opts.coverIndex + 1) % len;
     shift();
   };
 
-  const previous = () => {
+  $.fn.carousel.previous = () => {
     const opts = instance.options;
     const len = (opts.items || []).length;
     instance.options.coverIndex = len - ((len - opts.coverIndex) % len) - 1;
     shift();
   };
 
-  const play = () => {
-    instance.interval = setInterval(() => next(), 3000);
-  };
-
-  const stop = () => clearTimeout(instance.interval);
-
-  /**
-   * Run plugin.
-   */
-  run();
-};
+  $.fn.carousel.cover = instance.options.coverIndex;
+})(jQuery);

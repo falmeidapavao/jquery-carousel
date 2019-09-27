@@ -109,7 +109,7 @@
       e.preventDefault();
       e.stopPropagation();
       stop();
-      operation(e.type)();
+      operation($(e.currentTarget).data('op'))();
     });
 
     // Frame.

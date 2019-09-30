@@ -75,7 +75,7 @@ const watchFiles = () => {
 
 const js = gulp.series(lint, scripts);
 const build = gulp.series(clean, gulp.parallel(styles, js));
-const watch = gulp.parallel(watchFiles, browserSync);
+const watch = gulp.series(build, gulp.parallel(watchFiles, browserSync));
 
 exports.clean = clean;
 exports.styles = styles;

@@ -28,14 +28,15 @@
   "scripts": {
     "build": "gulp",
     "watch": "gulp watch",
-    "lint": "gulp lint"
+    "lint": "gulp lint",
+    "test": "karma start"
   },
   "dependencies": {
     "jquery": "^3.4.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.0",
-    "@babel/preset-env": "^7.6.0",
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
     "autoprefixer": "^9.6.1",
     "browser-sync": "^2.26.7",
     "cssnano": "^4.1.10",
@@ -44,6 +45,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-prettier": "^3.1.0",
+    "fast-check": "^1.17.0",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-concat": "^2.6.1",
@@ -54,6 +56,15 @@
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
+    "jasmine-core": "^3.5.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "karma": "^4.3.0",
+    "karma-babel-preprocessor": "^8.0.1",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-cli": "^2.0.0",
+    "karma-coverage-istanbul-reporter": "^2.1.0",
+    "karma-jasmine": "^2.0.1",
+    "karma-jasmine-html-reporter": "^1.4.2",
     "node-sass": "^4.12.0",
     "prettier": "^1.18.2"
   }

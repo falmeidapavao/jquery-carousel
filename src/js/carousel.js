@@ -3,18 +3,18 @@
   /**
    * Private fields
    */
-  let instance = {
+  const instance = {
     root: null,
     template: null,
     options: {}
   };
-  let animations = {};
+  const animations = {};
   let interval = null;
 
   /**
    * Plugin
    */
-  $.fn.carousel = function (options) {
+  $.fn.carousel = function (options = {}) {
     instance.root = $(this);
 
     // Extend defaults with provided options.

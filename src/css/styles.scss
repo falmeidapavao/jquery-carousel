@@ -23,27 +23,30 @@ $default-border: 1px solid silver;
       left: 50%;
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
+      z-index: 15;
     }
   }
   .c-arrow {
     position: absolute;
-    width: 0;
-    height: 0;
     z-index: 20;
     top: 50%;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
   }
   .c-next {
-    left: 90%;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-left: 20px solid green;
+    left: 95%;
   }
   .c-previous {
-    right: 90%;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-right: 20px solid green;
+    right: 95%;
+  }
+  .c-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    text-align: center;
+    z-index: 20;
   }
 }

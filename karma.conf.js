@@ -4,35 +4,28 @@
 module.exports = function (config) { // jshint ignore:line
   config.set({ // jshint ignore:line
     basePath: '',
-    frameworks: ['jasmine'],
-    preprocessors: {
-      'src/**/*.js': ['babel'],
-      'spec/**/*.spec.js': ['babel']
-    },
-    babelPreprocessor: {
-      options: {
-        presets: ['@babel/preset-env'],
-        sourceMap: 'inline'
-      },
-      filename: function (file) {
-        return file.originalPath.replace(/\.js$/, '.es5.js');
-      },
-      sourceFileName: function (file) {
-        return file.originalPath;
-      }
-    },
+    frameworks: ['browserify', 'jasmine'],
     files: [
       'node_modules/jquery/dist/jquery.min.js',
-      'node_modules/fast-check/lib/bundle.js',
       'src/**/*.js',
       'spec/**/*.spec.js'
     ],
+    preprocessors: {
+      'spec/**/*.spec.js': ['browserify']
+    },
+    browserify: {
+      debug: true,
+      transform: [["babelify", { "presets": ["@babel/preset-env"] }]]
+    },
+    watchify: {
+      poll: true
+    },
     plugins: [
       require('karma-jasmine'), // jshint ignore:line
       require('karma-chrome-launcher'), // jshint ignore:line
       require('karma-jasmine-html-reporter'), // jshint ignore:line
       require('karma-coverage-istanbul-reporter'), // jshint ignore:line
-      require('karma-babel-preprocessor'), // jshint ignore:line
+      require('karma-browserify'), // jshint ignore:line
     ],
     client: {
       clearContext: false // leave Jasmine Spec Runner output visible in browser

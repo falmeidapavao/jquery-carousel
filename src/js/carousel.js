@@ -1,213 +1,245 @@
 'use strict';
-(function ($) {
-  /**
-   * Private fields
-   */
-  const instance = {
-    root: null,
-    template: null,
-    options: {}
-  };
-  const animations = {};
-  let interval = null;
-
+(function($) {
   /**
    * Plugin
    */
-  $.fn.carousel = function (options) {
-    instance.root = $(this);
+  $.fn.carousel = function(options) {
+    /**
+     * Default options
+     */
+    const defaults = {
+      auto: false,
+      controls: false,
+      index: 0,
+      items: [],
+      animation: 'fade'
+    };
 
-    // Extend defaults with provided options.
-    instance.options = $.extend($.fn.carousel.defaults, options);
+    /**
+     * API instance
+     */
+    const instance = {
+      ...defaults,
+      ...options,
+      root: $(this),
+      animations: {}
+    };
 
-    return this.each(() => {
-      // Next/previous animations.
-      let currentAnimation = null;
-      switch (instance.options.animation) {
+    let history = [];
+
+    /**
+     * Private functions
+     */
+    const render = instance => {
+      const container = $('<div>', { class: 'c-container' });
+      const item = $('<div/>', { id: 'c-item', class: 'c-item' });
+      const img = $('<img/>', {
+        id: 'c-img',
+        class: 'c-img',
+        src: instance.items[instance.index].src
+      });
+      const next = $('<i/>', {
+        id: 'c-next',
+        class: 'c-arrow c-next fas fa-caret-right fa-3x',
+        'data-op': 'next'
+      });
+      const previous = $('<i/>', {
+        id: 'c-previous',
+        class: 'c-arrow c-previous fas fa-caret-left fa-3x',
+        'data-op': 'previous'
+      });
+
+      item.append(img);
+
+      // If user has controls enabled, set them.
+      if (instance.controls) {
+        const controls = $('<div/>', {
+          id: 'c-controls',
+          class: 'c-controls'
+        });
+        const action = $('<i/>', {
+          id: 'c-action',
+          class: 'fas fa-play-circle fa-2x',
+          'data-op': 'play'
+        });
+        controls.append(action);
+        item.append(controls);
+      }
+
+      // Append to container and set instance template.
+      container.append(item, next, previous);
+      const instanceWithTemplate = {
+        ...instance,
+        template: () => $('.c-container', instance.root)
+      };
+
+      // Render template effect
+      instanceWithTemplate.root.html(container);
+
+      // Instance with template with attached events
+      return setEvents(instanceWithTemplate);
+    };
+
+    const setEvents = instance => {
+      const tmpl = instance.template();
+      const operation = op => {
+        switch (op) {
+          case 'contextmenu':
+          case 'previous':
+            return previous;
+          case 'click':
+          case 'next':
+            return next;
+          case 'play':
+            return play;
+          case 'pause':
+            return pause;
+          default:
+            return () => currentInstance(instance);
+        }
+      };
+
+      // Icons.
+      tmpl.find('#c-next, #c-previous, #c-action').on('click', e => {
+        e.stopPropagation();
+        const $this = $(e.currentTarget);
+        return operation($this.data('op'))(currentInstance(instance));
+      });
+
+      // Frame.
+      tmpl.on('click contextmenu', e => {
+        e.preventDefault();
+        return operation(e.type)(pause(currentInstance(instance)));
+      });
+
+      return instance;
+    };
+
+    const shift = instance => {
+      const tmpl = instance.template();
+      const item = tmpl.find('#c-item');
+      const img = tmpl.find('#c-img');
+
+      // Wait for out animation to stop before working on DOM.
+      // Also wait for next/previous image to be loaded.
+      $.when(instance.animations.out(img)).done(function() {
+        img
+          .detach()
+          .attr('src', instance.items[instance.index].src)
+          .css({ display: 'none' })
+          .one('load', () => {
+            item.append(img);
+            instance.animations.in(img);
+          });
+      });
+
+      return instance;
+    };
+
+    const setControl = (instance, id, addClass, removeClass, action) => {
+      instance
+        .template()
+        .find(id)
+        .removeClass(removeClass)
+        .addClass(addClass)
+        .data('op', action);
+      return instance;
+    };
+
+    // Next/previous animations.
+    const currentAnimation = animation => {
+      switch (animation) {
         case 'slide':
-          currentAnimation = { in: 'slideDown', out: 'slideUp' };
-          break;
+          return { in: 'slideDown', out: 'slideUp' };
         case 'fade':
         default:
-          currentAnimation = { in: 'fadeIn', out: 'fadeOut' };
-          break;
-      }
-
-      // Set instance animation callbacks.
-      animations.in = elm => {
-        elm[currentAnimation['in']]();
-      };
-      animations.out = elm => {
-        return elm[currentAnimation['out']]();
-      };
-
-      // Render UI.
-      render();
-
-      // Check for auto shift mode.
-      if (instance.options.auto) {
-        $.fn.carousel.play();
-      }
-    });
-  };
-
-  /**
-   * Default options
-   */
-  $.fn.carousel.defaults = {
-    items: [{ src: '' }],
-    coverIndex: 0,
-    auto: false,
-    controls: false
-  };
-
-  /**
-   * Private functions
-   */
-  const render = () => {
-    const container = $('<div>', { class: 'c-container' });
-    const item = $('<div/>', { id: 'c-item', class: 'c-item' });
-    const img = $('<img/>', {
-      'id': 'c-img',
-      'class': 'c-img',
-      'src': instance.options.items[instance.options.coverIndex].src
-    });
-    const next = $('<i/>', {
-      'id': 'c-next',
-      'class': 'c-arrow c-next fas fa-caret-right fa-3x',
-      'data-op': 'next'
-    });
-    const previous = $('<i/>', {
-      'id': 'c-previous',
-      'class': 'c-arrow c-previous fas fa-caret-left fa-3x',
-      'data-op': 'previous'
-    });
-
-    item.append(img);
-
-    // If user has controls enabled, set them.
-    if (instance.options.controls) {
-      const controls = $('<div/>', {
-        'id': 'c-controls',
-        'class': 'c-controls'
-      });
-      const action = $('<i/>', {
-        'id': 'c-action',
-        'class': 'fas fa-play-circle fa-2x',
-        'data-op': 'play'
-      });
-      controls.append(action);
-      item.append(controls);
-    }
-
-    // Append to container and set instance template.
-    container.append(item, next, previous);
-    instance.template = container;
-
-    setEvents();
-    instance.root.html(instance.template);
-  };
-
-  const setEvents = () => {
-    const tmpl = instance.template;
-    const operation = op => {
-      switch (op) {
-        case 'contextmenu':
-        case 'previous':
-          return $.fn.carousel.previous;
-        case 'click':
-        case 'next':
-          return $.fn.carousel.next;
-        case 'play':
-          return $.fn.carousel.play;
-        case 'pause':
-          return $.fn.carousel.pause;
-        default:
-          return () => { };
+          return { in: 'fadeIn', out: 'fadeOut' };
       }
     };
 
-    // Icons.
-    tmpl.find('#c-next, #c-previous, #c-action').on('click', e => {
-      e.stopPropagation();
-      const $this = $(e.currentTarget);
-      operation($this.data('op'))();
-    });
+    // Set instance animation callbacks.
+    const initAnimations = instance => {
+      const animation = currentAnimation(instance.animation);
+      return {
+        ...instance,
+        animations: {
+          in: elm => elm[animation.in](),
+          out: elm => elm[animation.out]()
+        }
+      };
+    };
 
-    // Frame.
-    tmpl.on('click contextmenu', e => {
-      e.preventDefault();
-      $.fn.carousel.pause();
-      operation(e.type)();
-    });
-  };
+    const currentInstance = instance => history[0] || instance;
 
-  const shift = () => {
-    const tmpl = instance.template;
-    const item = tmpl.find('#c-item');
-    const img = tmpl.find('#c-img');
+    const addToHistory = instance => {
+      history = [instance, ...history].slice(0, 10);
+      return instance;
+    };
 
-    // Wait for out animation to stop before working on DOM.
-    // Also wait for next/previous image to be loaded.
-    $.when(animations.out(img)).done(function () {
-      img
-        .detach()
-        .attr('src', options.items[instance.options.coverIndex].src)
-        .css({ display: 'none' })
-        .one('load', () => {
-          item.append(img);
-          animations.in(img);
+    /**
+     * Exposed methods/properties
+     */
+    const next = instance => {
+      const len = (instance.items || []).length;
+      const updatedIndex = (instance.index + 1) % len;
+      return addToHistory(shift({ ...instance, index: updatedIndex }));
+    };
+
+    const previous = instance => {
+      const len = (instance.items || []).length;
+      const updatedIndex = len - ((len - instance.index) % len) - 1;
+      return addToHistory(shift({ ...instance, index: updatedIndex }));
+    };
+
+    const play = instance => {
+      const createInterval = instance =>
+        addToHistory({
+          ...instance,
+          interval: setInterval(() => {
+            next(currentInstance(instance));
+          }, 3000)
         });
-      $.fn.carousel.cover = instance.options.coverIndex;
-    });
-  };
+      if (instance.controls) {
+        return createInterval(
+          setControl(instance, '#c-action', 'fa-pause-circle', 'fa-play-circle', 'pause')
+        );
+      }
+      return createInterval(instance);
+    };
 
-  const setControl = (id, addClass, removeClass, action) => {
-    instance.template
-      .find(id)
-      .removeClass(removeClass)
-      .addClass(addClass)
-      .data('op', action);
-  };
+    const pause = instance => {
+      const removeInterval = instance => {
+        const { interval, ...instanceWithoutInterval } = instance;
+        clearTimeout(interval);
+        return addToHistory(instanceWithoutInterval);
+      };
+      if (instance.controls) {
+        return removeInterval(
+          setControl(instance, '#c-action', 'fa-play-circle', 'fa-pause-circle', 'play')
+        );
+      }
+      return removeInterval(instance);
+    };
 
-  /**
-   * Exposed methods/properties
-   */
-  $.fn.carousel.next = () => {
-    const opts = instance.options;
-    const len = (opts.items || []).length;
-    instance.options.coverIndex = (opts.coverIndex + 1) % len;
-    shift();
-  };
+    const exposed = api => {
+      const latest = history[0] || addToHistory(api);
+      return {
+        ...latest,
+        previous: () => exposed(previous(latest)),
+        next: () => exposed(next(latest)),
+        play: () => exposed(play(latest)),
+        pause: () => exposed(pause(latest))
+      };
+    };
 
-  $.fn.carousel.previous = () => {
-    const opts = instance.options;
-    const len = (opts.items || []).length;
-    instance.options.coverIndex = len - ((len - opts.coverIndex) % len) - 1;
-    shift();
-  };
+    // Render UI.
+    let api = render(initAnimations(instance));
 
-  $.fn.carousel.play = (provider) => {
-    if (instance.options.controls)
-      setControl(
-        '#c-action',
-        'fa-pause-circle',
-        'fa-play-circle',
-        'pause');
-    interval = setInterval(() => {
-      $.fn.carousel.next();
-    }, 3000);
-  };
+    // Check for auto shift mode.
+    if (instance.auto) {
+      api = play(api);
+    }
 
-  $.fn.carousel.pause = () => {
-    if (instance.options.controls)
-      setControl(
-        '#c-action',
-        'fa-play-circle', 
-        'fa-pause-circle', 
-        'play');
-    clearTimeout(interval);
+    return exposed(api);
   };
-
-  $.fn.carousel.cover = instance.options.coverIndex;
 })(jQuery);

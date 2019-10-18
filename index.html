@@ -24,7 +24,7 @@
   <!-- Plugin -->
   <script src="dist/carousel.min.js"></script>
   <script>
-    let options = {
+    const options = {
       animation: 'fade',
       auto: false,
       controls: true,
@@ -34,7 +34,7 @@
         { 'src': 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg' }
       ]
     };
-    $('#dummy').carousel(options);
+    const api = $('#dummy').carousel(options);
   </script>
 </body>
 

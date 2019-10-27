@@ -13,7 +13,7 @@ parserOptions:
   ecmaVersion: 2018
   sourceType: module
 rules:
-  valid-jsdoc: [warn]
+  valid-jsdoc: [off]
   prettier/prettier: [warn]
   curly: [error, all]
   quotes:

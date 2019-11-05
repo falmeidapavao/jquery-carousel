@@ -33,11 +33,12 @@
     const render = instance => {
       const container = $('<div>', { class: 'c-container' });
       const item = $('<div/>', { id: 'c-item', class: 'c-item' });
-      const img = $('<img/>', {
-        id: 'c-img',
-        class: 'c-img',
-        src: instance.items[instance.index].src
-      });
+      const img = src =>
+        $('<img/>', {
+          id: 'c-img',
+          class: 'c-img',
+          src: src
+        });
       const next = $('<i/>', {
         id: 'c-next',
         class: 'c-arrow c-next fas fa-caret-right fa-3x',
@@ -49,7 +50,12 @@
         'data-op': 'previous'
       });
 
-      item.append(img);
+      if ((instance.items || []).length > 0) {
+        const currentItem = instance.items[instance.index];
+        if (currentItem) {
+          item.append(img(currentItem.src));
+        }
+      }
 
       // If user has controls enabled, set them.
       if (instance.controls) {
